@@ -1,0 +1,13 @@
+{
+  "name": "agroharvest-platform",
+  "version": "1.0.0",
+  "description": "AgroHarvest - Bulk Agricultural Marketplace for Paddy, Corn, and Peanuts",
+  "private": true,
+  "scripts": {
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "seed": "cd server && npm run seed",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build"
+  }
+}
