@@ -17,16 +17,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const HOST = '127.0.0.1';
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🌾 AgroHarvest API running on port ${PORT}`);
-});
+const PORT = Number(process.env.PORT) || 10000;
 
 // Middleware
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5000', 'http://127.0.0.1:5000'],
+    origin: [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
+      'https://agriman1.onrender.com',
+    ],
     credentials: true,
   })
 );
@@ -71,8 +73,14 @@ app.use((err, req, res, next) => {
   });
 });
 
+let serverInstance = null;
+
 // Start Server
 const startServer = async () => {
+  if (serverInstance) {
+    return serverInstance;
+  }
+
   try {
     await connectDB();
 
@@ -83,10 +91,16 @@ const startServer = async () => {
       await seedData();
     }
 
-    const server = app.listen(PORT, HOST, () => {
-      console.log(`🌾 AgroHarvest API running at http://${HOST}:${PORT}`);
+    serverInstance = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🌾 AgroHarvest API running on port ${PORT}`);
     });
-    return server;
+
+    serverInstance.on('error', (err) => {
+      console.error('[AgroHarvest Server Listen Error]:', err);
+      process.exit(1);
+    });
+
+    return serverInstance;
   } catch (err) {
     console.error('Failed to start AgroHarvest server:', err);
     process.exit(1);
@@ -96,7 +110,8 @@ const startServer = async () => {
 // Export app and startup for testing/standalone
 export { app, startServer };
 
-// If executed directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Start automatically when run directly via `node src/server.js`
+const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : '';
+if (invokedPath === __filename) {
   startServer();
 }
