@@ -1,0 +1,13 @@
+# AgroHarvest Robots.txt
+# https://agroharvest.in/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin*
+
+# Crawl-delay (optional, polite to bots)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://agroharvest.in/sitemap.xml

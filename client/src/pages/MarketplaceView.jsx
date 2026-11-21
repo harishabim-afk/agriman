@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { CommodityBadge } from '../components/CommodityBadge';
 import { GradeBadge } from '../components/GradeBadge';
 import { OrderModal } from '../components/OrderModal';
+import { SEOHead, listingsToItemListJsonLd, listingToProductJsonLd } from '../components/SEOHead';
 import { 
   Search, 
   Filter, 
@@ -90,7 +91,21 @@ export const MarketplaceView = ({ onNavigateToOrders }) => {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <section aria-label="Agricultural Commodity Marketplace" className="space-y-6 pb-16">
+      
+      {/* Inject ItemList structured data for crawlers */}
+      {listings.length > 0 && (
+        <SEOHead
+          title={selectedCommodity ? `${selectedCommodity} Listings` : null}
+          description={
+            selectedCommodity
+              ? `Browse wholesale ${selectedCommodity} listings from verified Indian cooperatives. Compare prices, moisture levels, and quality grades.`
+              : undefined
+          }
+          canonicalPath={selectedCommodity ? `/?commodity=${selectedCommodity}` : '/'}
+          jsonLd={listingsToItemListJsonLd(listings)}
+        />
+      )}
       
       {/* Hero Banner with Agricultural Ticker */}
       <div className="relative rounded-3xl bg-gradient-to-r from-emerald-900 via-emerald-800 to-stone-900 text-white p-6 sm:p-10 shadow-xl overflow-hidden">
@@ -298,15 +313,25 @@ export const MarketplaceView = ({ onNavigateToOrders }) => {
             const isMoistureOptimal = listing.moisturePercentage <= 12.5;
 
             return (
-              <div
+              <article
                 key={listing._id}
                 className="group bg-white rounded-2xl border border-stone-200/90 hover:border-emerald-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+                itemScope
+                itemType="https://schema.org/Product"
               >
+                {/* Hidden structured data for crawlers */}
+                <meta itemProp="name" content={listing.title} />
+                <meta itemProp="description" content={listing.description || `${listing.commodity} – ${listing.variety || 'Standard'} ${listing.grade}`} />
+                <div itemProp="offers" itemScope itemType="https://schema.org/Offer" style={{ display: 'none' }}>
+                  <meta itemProp="priceCurrency" content="INR" />
+                  <meta itemProp="price" content={String(listing.unitPrice)} />
+                  <meta itemProp="availability" content={listing.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'} />
+                </div>
                 {/* Produce Image & Top Badges */}
                 <div className="relative h-44 bg-stone-100 overflow-hidden">
                   <img
                     src={listing.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80'}
-                    alt={listing.title}
+                    alt={`${listing.title} – ${listing.commodity} ${listing.grade} from ${listing.origin?.state || 'India'}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -397,7 +422,7 @@ export const MarketplaceView = ({ onNavigateToOrders }) => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
@@ -414,6 +439,6 @@ export const MarketplaceView = ({ onNavigateToOrders }) => {
           }}
         />
       )}
-    </div>
+    </section>
   );
 };

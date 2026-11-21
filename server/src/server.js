@@ -10,6 +10,8 @@ import authRoutes from './routes/auth.routes.js';
 import listingRoutes from './routes/listing.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import seoRoutes from './routes/seo.routes.js';
+import { seoMiddleware } from './middleware/seo.middleware.js';
 
 dotenv.config();
 
@@ -50,9 +52,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/seo', seoRoutes);
 
 // Serve Static Frontend Assets (Production/Full-stack single port)
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
+
+// SEO middleware: inject dynamic meta tags for search engine & social media crawlers
+app.use(seoMiddleware(clientDistPath));
+
 app.use(express.static(clientDistPath));
 
 // Fallback to client index.html for SPA client-side routes

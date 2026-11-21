@@ -12,12 +12,88 @@ import { AdminListingsView } from './pages/AdminListingsView';
 import { AdminOrdersView } from './pages/AdminOrdersView';
 import { AuthView } from './pages/AuthView';
 import { CreateListingModal } from './components/CreateListingModal';
+import { SEOHead, organizationJsonLd, websiteJsonLd } from './components/SEOHead';
 
 export const App = () => {
   const { user, role, loading } = useAuth();
   const [currentView, setCurrentView] = useState('marketplace');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
+
+  /** Returns SEO props based on the current view */
+  const getSeoProps = () => {
+    const viewSeoMap = {
+      marketplace: {
+        title: null, // Uses default title
+        description:
+          'Browse wholesale Paddy, Corn & Peanuts listings from verified Indian cooperatives. Filter by grade, moisture, price & origin. Transparent INR pricing with escrow protection.',
+        canonicalPath: '/',
+        keywords:
+          'buy paddy online, wholesale corn India, peanuts groundnut bulk, agricultural marketplace, farm produce, INR grain prices, mandi rates',
+        jsonLd: { ...websiteJsonLd },
+      },
+      'buyer-orders': {
+        title: 'My Orders',
+        description:
+          'Track your bulk agricultural orders on AgroHarvest. View order status, shipment updates, and payment details for Paddy, Corn & Peanuts purchases.',
+        canonicalPath: '/?view=buyer-orders',
+        noIndex: true,
+      },
+      'seller-inventory': {
+        title: 'Seller Inventory',
+        description:
+          'Manage your agricultural produce listings on AgroHarvest. Create, edit and track Paddy, Corn & Peanuts listings with real-time inventory management.',
+        canonicalPath: '/?view=seller-inventory',
+        noIndex: true,
+      },
+      'seller-orders': {
+        title: 'Seller Orders',
+        description:
+          'Manage incoming orders and fulfillment for your agricultural produce on AgroHarvest.',
+        canonicalPath: '/?view=seller-orders',
+        noIndex: true,
+      },
+      'admin-overview': {
+        title: 'Admin Dashboard',
+        description: 'AgroHarvest admin dashboard – platform statistics and management.',
+        canonicalPath: '/?view=admin-overview',
+        noIndex: true,
+      },
+      'admin-users': {
+        title: 'User Management',
+        description: 'Manage users, verify sellers, and oversee accounts on AgroHarvest.',
+        canonicalPath: '/?view=admin-users',
+        noIndex: true,
+      },
+      'admin-listings': {
+        title: 'Listings Management',
+        description: 'Moderate and manage all agricultural produce listings on AgroHarvest.',
+        canonicalPath: '/?view=admin-listings',
+        noIndex: true,
+      },
+      'admin-orders': {
+        title: 'Orders Management',
+        description: 'Oversee all platform orders and transactions on AgroHarvest.',
+        canonicalPath: '/?view=admin-orders',
+        noIndex: true,
+      },
+      login: {
+        title: 'Sign In',
+        description:
+          'Sign in to AgroHarvest to buy or sell Paddy, Corn & Peanuts on India\'s wholesale agricultural commodity marketplace.',
+        canonicalPath: '/?view=login',
+        keywords: 'AgroHarvest login, agri marketplace sign in, farmer login',
+      },
+      register: {
+        title: 'Create Account',
+        description:
+          'Register as a Buyer or Seller on AgroHarvest – India\'s wholesale agricultural marketplace for Paddy, Corn & Peanuts. Free verified seller accounts.',
+        canonicalPath: '/?view=register',
+        keywords: 'AgroHarvest register, create seller account, agri marketplace signup',
+      },
+    };
+    return viewSeoMap[currentView] || viewSeoMap.marketplace;
+  };
 
   // Sync initial view when user role changes
   useEffect(() => {
@@ -105,6 +181,9 @@ export const App = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fafaf9]">
+      {/* Dynamic SEO Meta Tags */}
+      <SEOHead {...getSeoProps()} />
+
       {/* Top Navbar */}
       <Navbar
         currentView={currentView}
